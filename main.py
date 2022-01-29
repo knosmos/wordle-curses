@@ -1,50 +1,50 @@
 import curses, random
 from curses import wrapper
 words = open("words.txt","r").read().split("\n")
-
 def writeWord(s, word, remark, y):
-    for i, (letter, color) in enumerate(zip(word, remark)):
-        s.addstr(y, i*2, letter.upper(), curses.color_pair({"c":2,"w":3,"n":7}[color]))
-
+    s.addstr(y, 0, "│ │ │ │ │ │\n├─┼─┼─┼─┼─┤")
+    for i, (letter, color) in enumerate(zip(word, remark)): s.addstr(y, i*2+1, letter.upper(), curses.color_pair({"c":2,"w":3,"n":7,"u":6}[color]))
 def score(guess, word):
-    res = ""
+    res = [" "]*5
     counts = [0]*26
     for i, c in enumerate(guess):
-        counts[ord(c)-97] += 1
-        if c == word[i]: res += "c" # correct spot
-        elif c in word and word.count(c) >= counts[ord(c)-97]: res += "w" # wrong spot
-        else: res += "n" # not in word
-    return res
-
+        if c == word[i]:
+            counts[ord(c)-97] += 1
+            res[i] = "c" # correct spot
+    for i, c in enumerate(guess):
+        if c != word[i]:
+            counts[ord(c)-97] += 1
+            if c in word and word.count(c) >= counts[ord(c)-97]: res[i] = "w" # wrong spot
+            else: res[i] = "n" # not in word
+    return "".join(res)
 def render(s, guesses):
-    s.clear()
-    s.addstr(0, 0, "=== WORDLE ===", curses.color_pair(2))
-    for i, (w, r) in enumerate(guesses): writeWord(s, w, r, i+2)
-
-def run(s):
-    word = random.choice(words)
-    y = 2
-    result = ""
-    guesses = []
-    while result != "ccccc" and len(guesses) < 6:
-        render(s, guesses)
-        guess = s.getstr(y, 0, 5).decode("u8").lower()
-        if not(guess in words): continue
-        result = score(guess, word)
-        guesses.append([guess, result])
-        y += 1
-    render(s, guesses)
-    s.addstr(y+1, 0, ["Genius!", "Unbelievable!", "Splendid!", "Amazing!", "Great!", "Good!", "No more tries"][len(guesses)])
-    s.addstr(y+2, 0, "[esc] to quit, [enter] to play again", curses.color_pair(3))
-
-def main(s):
-    curses.init_pair(2, curses.COLOR_GREEN, curses.COLOR_BLACK)
-    curses.init_pair(3, curses.COLOR_YELLOW, curses.COLOR_BLACK)
-    curses.init_pair(7, curses.COLOR_WHITE, curses.COLOR_BLACK)
+    s.addstr(0, 0, "=== WORDLE ===", curses.color_pair(6))
+    s.addstr(1, 0, "╭─┬─┬─┬─┬─╮")
+    for i, (w, r) in enumerate(guesses): writeWord(s, w, r, i*2+2)
+def getWord(s, y):
+    word = ""
     while True:
-        curses.echo()
+        writeWord(s, word, "u"*len(word), y)
+        k = s.getch()
+        if chr(k) == "\b": word = word[:-1]
+        elif k == 27: exit()
+        elif chr(k) == "\n" and len(word) == 5: return word
+        elif chr(k).isalpha() and len(word) < 5: word += chr(k)
+def run(s):
+    s.clear()
+    word = random.choice(words)
+    guesses = []
+    while not(len(guesses)) or (guesses[-1][1] != "ccccc" and len(guesses) < 6):
+        render(s, guesses)
+        guess = getWord(s, len(guesses)*2+2).lower()
+        if not(guess in words): continue
+        guesses.append([guess, score(guess, word)])
+    render(s, guesses)
+    s.addstr(len(guesses)*2+2+1, 0, ["", "Genius!", "Unbelievable!", "Splendid!", "Amazing!", "Great!", "Good!", "No more tries - the word was "+word.upper()][len(guesses)+(guesses[-1][1]!="ccccc")])
+    s.addstr(len(guesses)*2+2+2, 0, "[esc] to quit, [enter] to play again", curses.color_pair(3))
+def main(s):
+    for p in [(2,curses.COLOR_GREEN),(3,curses.COLOR_YELLOW),(7,curses.COLOR_WHITE),(6,curses.COLOR_CYAN)]: curses.init_pair(p[0], p[1], curses.COLOR_BLACK)
+    while True:
         run(s)
-        curses.noecho()
-        cont = s.getch()
-        if cont == 27: break
+        if s.getch() == 27: break
 wrapper(main)
