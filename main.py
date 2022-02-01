@@ -47,8 +47,8 @@ def run(s):
         res, alphabet = score(guess, word, alphabet)
         guesses.append([guess, res])
     render(s, guesses, alphabet)
-    s.addstr(len(guesses)*2+2+2, 0, ["", "Genius!", "Unbelievable!", "Splendid!", "Amazing!", "Great!", "Good!", "No more tries - the word was "+word.upper()][len(guesses)+(guesses[-1][1]!="ccccc")]+"\n[esc] to quit, [enter] to play again")
-    if s.getkey() == 27: exit()
+    s.addstr(len(guesses)*2+2, 0, "╰─┴─┴─┴─┴─╯\n"+["", "Genius!", "Unbelievable!", "Splendid!", "Amazing!", "Great!", "Good!", "No more tries - the word was "+word.upper()][len(guesses)+(guesses[-1][1]!="ccccc")]+"\n[esc] to quit, [enter] to play again")
+    if s.getch() == 27: exit()
 def main(s):
     for p in [(2,curses.COLOR_GREEN),(3,curses.COLOR_YELLOW),(7,curses.COLOR_WHITE),(6,curses.COLOR_CYAN)]: curses.init_pair(p[0], p[1], curses.COLOR_BLACK)
     while True: run(s)

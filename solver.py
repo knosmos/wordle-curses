@@ -32,7 +32,7 @@ def reduce(word, result, words):
 print("WORDLE SOLVER")
 print("=============")
 # First guess is precomputed
-opt = "raise"
+opt = "crate"
 result = ""
 while result != "CCCCC":
     print(opt)
