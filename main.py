@@ -23,9 +23,9 @@ def score(guess, word, alphabet):
     return "".join(res), alphabet
 def render(s, guesses, alphabet):
     s.addstr(0, 0, "=== WORDLE ===", curses.color_pair(2))
-    for i, c in enumerate(alphabet): s.addstr(1, i, chr(65+i), curses.color_pair({"c":2,"w":3,"n":7,"u":6}[c]))
-    s.addstr(2, 0, "╭─┬─┬─┬─┬─╮")
-    for i, (w, r) in enumerate(guesses): writeWord(s, w, r, i*2+3)
+    for i, c in enumerate(alphabet): s.addstr(1+int(i//7), (i%7)*2, chr(65+i), curses.color_pair({"c":2,"w":3,"n":7,"u":6}[c]))
+    s.addstr(6, 0, "╭─┬─┬─┬─┬─╮")
+    for i, (w, r) in enumerate(guesses): writeWord(s, w, r, i*2+7)
 def getWord(s, y):
     word = ""
     while True:
@@ -42,12 +42,12 @@ def run(s):
     alphabet = ["u"]*26
     while not(len(guesses)) or (guesses[-1][1] != "ccccc" and len(guesses) < 6):
         render(s, guesses, alphabet)
-        guess = getWord(s, len(guesses)*2+3).lower()
+        guess = getWord(s, len(guesses)*2+7).lower()
         if not(guess in words): continue
         res, alphabet = score(guess, word, alphabet)
         guesses.append([guess, res])
     render(s, guesses, alphabet)
-    s.addstr(len(guesses)*2+2, 0, "╰─┴─┴─┴─┴─╯\n"+["", "Genius!", "Unbelievable!", "Splendid!", "Amazing!", "Great!", "Good!", "No more tries - the word was "+word.upper()][len(guesses)+(guesses[-1][1]!="ccccc")]+"\n[esc] to quit, [enter] to play again")
+    s.addstr(len(guesses)*2+6, 0, "╰─┴─┴─┴─┴─╯\n\n"+["", "Genius!", "Unbelievable!", "Splendid!", "Amazing!", "Great!", "Good!", "No more tries - the word was "+word.upper()][len(guesses)+(guesses[-1][1]!="ccccc")]+"\n[esc] to quit, [enter] to play again")
     if s.getch() == 27: exit()
 def main(s):
     for p in [(2,curses.COLOR_GREEN),(3,curses.COLOR_YELLOW),(7,curses.COLOR_WHITE),(6,curses.COLOR_CYAN)]: curses.init_pair(p[0], p[1], curses.COLOR_BLACK)
