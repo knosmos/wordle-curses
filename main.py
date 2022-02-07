@@ -31,7 +31,7 @@ def getWord(s, y):
     while True:
         writeWord(s, word, "u"*len(word), y)
         k = s.getch()
-        if chr(k) == "\b": word = word[:-1]
+        if k == 8: word = word[:-1]
         elif k == 27: exit()
         elif chr(k) == "\n" and len(word) == 5: return word
         elif chr(k).isalpha() and len(word) < 5: word += chr(k)
